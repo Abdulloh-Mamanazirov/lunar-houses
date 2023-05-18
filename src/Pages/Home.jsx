@@ -24,6 +24,7 @@ const Home = () => {
   let [duration, setDuration] = useState();
   let [calculation, setCalculation] = useState();
   let [loading, setLoading] = useState(false);
+  let [calculating, setCalculating] = useState(false);
 
   useEffect(() => {
     let check = sessionStorage.getItem("lunar") || localStorage.getItem("admin-token");
@@ -48,14 +49,16 @@ const Home = () => {
     setDurationList([5,10,15,20])
   }
   async function handleBank(e) {
+    setCalculating(true)
     let selectedRoom;
     await roomList?.map?.((rom) => {
       if(rom?.id === room) selectedRoom = rom
     });
     let totalPrice = selectedRoom?.price * selectedRoom?.kv;
     let banks = await axios.post(`/banks`,{totalPrice})
-    let calculations = await axios.post(`/calculation`,{roomP:selectedRoom?.price, roomKv:selectedRoom?.kv, sp:banks?.data?.starting_payment, d:selectDuration.current.value})
+    let calculations = await axios.post(`/calculation`,{roomP:selectedRoom?.price, roomKv:selectedRoom?.kv, sp:banks?.data?.starting_payment, d:selectDuration.current.value}).catch(error=>{console.log(error); setCalculating(false)})
     if(calculations.status === 200){
+      setCalculating(false)
       setCalculation(calculations.data.data[0].calculator)
       toast(calculations.data.msg, {type:"success"})
     }
@@ -205,6 +208,9 @@ const Home = () => {
           <button type="reset" className="rounded-lg p-1 px-3 text-white border bg-blue-600 hover:bg-blue-500" onClick={()=>window.location.reload()}>Reset</button>
         </div>
         <div className="relative bg-slate-200 shadow-2xl w-10/12 mx-auto p-3 rounded-xl flex items-center justify-around">
+          {calculating && <div className="z-10 absolute grid place-items-center bg-slate-200 inset-0 rounded-xl text-black">
+              <h2 className="animate-pulse [animation-duration:1s] text-3xl font-mono">Calculating... <i className="fa-solid fa-calculator"></i></h2>
+            </div>}
           <div className="flex flex-col items-center gap-3">
             <h2>
               Building company:{" "}
