@@ -104,13 +104,28 @@ const Home = () => {
     <>
       <Navbar />
       <div className="py-5 relative">
-        {user?.[0] && <div className="bg-slate-200 absolute top-0 right-0 flex items-center gap-5 p-3 rounded-bl-xl">
-          <button onClick={()=>{getHouses(); savedModal.current.showModal()}} className="bg-blue-600 text-white p-3 px-4 rounded-lg hover:bg-blue-500 active:bg-blue-400" title="Show saved houses"><i className="fa-solid fa-bookmark"></i></button>
-          <div className="flex flex-col gap-1">
-            <span className="text-xl">Name: <span className="font-semibold">{user?.[0]?.name}</span></span>
-            <span className="text-lg">Email: <span className="font-semibold">{user?.[0]?.email}</span></span>
-          </div> 
-        </div>}
+        {user?.[0] && (
+          <div className="bg-slate-200 absolute top-0 right-0 flex items-center gap-5 p-3 rounded-bl-xl">
+            <button
+              onClick={() => {
+                getHouses();
+                savedModal.current.showModal();
+              }}
+              className="bg-blue-600 text-white p-3 px-4 rounded-lg hover:bg-blue-500 active:bg-blue-400"
+              title="Show saved houses"
+            >
+              <i className="fa-solid fa-bookmark"></i>
+            </button>
+            <div className="flex flex-col gap-1">
+              <span className="text-xl">
+                Name: <span className="font-semibold">{user?.[0]?.name}</span>
+              </span>
+              <span className="text-lg">
+                Email: <span className="font-semibold">{user?.[0]?.email}</span>
+              </span>
+            </div>
+          </div>
+        )}
         <h2 className="text-center text-5xl font-bold my-5 text-blue-600">
           Choose a house by filtering
         </h2>
@@ -168,7 +183,10 @@ const Home = () => {
               Number of rooms:
             </label>
             <select
-              onChange={(e) => {setRoom(e.target.value); handleMortage()}}
+              onChange={(e) => {
+                setRoom(e.target.value);
+                handleMortage();
+              }}
               id="roomSelect"
               className="rounded-lg p-1 outline-blue-400"
             >
@@ -200,103 +218,229 @@ const Home = () => {
               <option selected disabled value="">
                 Select one
               </option>
-              {durationList?.map?.(d=>{
-                return <option key={d} value={d}>{d} years</option>
+              {durationList?.map?.((d) => {
+                return (
+                  <option key={d} value={d}>
+                    {d} years
+                  </option>
+                );
               })}
             </select>
           </div>
-          <button type="reset" className="rounded-lg p-1 px-3 text-white border bg-blue-600 hover:bg-blue-500" onClick={()=>window.location.reload()}>Reset</button>
+          <button
+            type="reset"
+            className="rounded-lg p-1 px-3 text-white border bg-blue-600 hover:bg-blue-500"
+            onClick={() => window.location.reload()}
+          >
+            Reset
+          </button>
         </div>
         <div className="relative bg-slate-200 shadow-2xl w-10/12 mx-auto p-3 rounded-xl flex items-center justify-around">
-          {calculating && <div className="z-10 absolute grid place-items-center bg-slate-200 inset-0 rounded-xl text-black">
-              <h2 className="animate-pulse [animation-duration:1s] text-3xl font-mono">Calculating... <i className="fa-solid fa-calculator"></i></h2>
-            </div>}
+          {calculating && (
+            <div className="z-10 absolute grid place-items-center bg-slate-200 inset-0 rounded-xl text-black">
+              <span className="animate-pulse [animation-duration:1s] text-3xl font-mono">
+                Calculating... <i className="fa-solid fa-calculator"></i>
+              </span>
+            </div>
+          )}
+          {!company && <div className="z-10 absolute grid place-items-center bg-slate-200 inset-0 rounded-xl text-black">
+            <span className="opacity-50">Please select a house <i className="fa-solid fa-arrow-pointer pl-2"></i></span>
+          </div>}
           <div className="flex flex-col items-center gap-3">
             <h2>
               Building company:{" "}
-              <span className="text-lg font-medium">{companyList?.map?.((com) => com?.id === company && com?.name)}</span>
+              <span className="text-lg font-medium">
+                {companyList?.map?.((com) => com?.id === company && com?.name)}
+              </span>
             </h2>
             <h2>
               Complex:{" "}
-              <span className="text-lg font-medium">{complexList?.map?.((com) => com?.id === complex && com?.name)}</span>
+              <span className="text-lg font-medium">
+                {complexList?.map?.((com) => com?.id === complex && com?.name)}
+              </span>
             </h2>
             <h2>
               Address:{" "}
-              <span className="text-lg font-medium">{complexList?.map?.((com) => com?.id === complex && com?.address)}</span>
+              <span className="text-lg font-medium">
+                {complexList?.map?.(
+                  (com) => com?.id === complex && com?.address
+                )}
+              </span>
             </h2>
             <h2>
               Number of room(s):{" "}
-              <span className="text-lg font-medium">{roomList?.map?.(
-                (rom) => rom?.id === room && rom?.number_of_rooms
-              )}</span>
+              <span className="text-lg font-medium">
+                {roomList?.map?.(
+                  (rom) => rom?.id === room && rom?.number_of_rooms
+                )}
+              </span>
             </h2>
             <h2>
-              Area: <span className="text-lg font-medium">{roomList?.map?.((rom) => rom?.id === room && rom?.kv)} m
-              <sup>2</sup></span>
+              Area:{" "}
+              <span className="text-lg font-medium">
+                {roomList?.map?.((rom) => rom?.id === room && rom?.kv)} m
+                <sup>2</sup>
+              </span>
             </h2>
             <h2>
               Price per m<sup>2</sup>:{" "}
-              <span className="text-lg font-medium">{roomList?.map?.((rom) => rom?.id === room && <CurrencyFormat key={crypto.randomUUID()} value={rom?.price} displayType={'text'} thousandSeparator={true}/>)} sums</span>
+              <span className="text-lg font-medium">
+                {roomList?.map?.(
+                  (rom) =>
+                    rom?.id === room && (
+                      <CurrencyFormat
+                        key={crypto.randomUUID()}
+                        value={rom?.price}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    )
+                )}{" "}
+                sums
+              </span>
             </h2>
           </div>
-          {bank && <div className="flex flex-col items-center gap-3">
-            <img width={200} src={bank?.image} alt="bank" />
-            <span>Bank name: <span className="text-lg font-medium">{bank?.name}</span></span>
-            <span>Maximum amount of loan: <span className="text-lg font-medium"><CurrencyFormat value={bank?.max_loan} displayType={'text'} thousandSeparator={true}/>  sums</span></span>
-            <span>Starting payment: <span className="text-lg font-medium">{bank?.starting_payment}%</span></span>
-            <span>Loan duration: <span className="text-lg font-medium">{duration} years</span></span>
-          </div>}
-          {bank && <div className="flex flex-col items-center gap-3">
-            <h2 className="text-2xl font-semibold">Calculator :</h2>
-            <span>House price: <span className="text-lg font-medium"><CurrencyFormat value={calculation?.[0]} displayType={'text'} thousandSeparator={true}/>  sums</span></span>
-            <span>Starting payment: <span className="text-lg font-medium"><CurrencyFormat value={calculation?.[1]} displayType={'text'} thousandSeparator={true}/>  sums</span></span>
-            <span>Monthly payment: <span className="text-lg font-medium"><CurrencyFormat value={calculation?.[2]} displayType={'text'} thousandSeparator={true}/>  sums</span></span>
-            <span>Payment duration: <span className="text-lg font-medium">{duration} years</span></span>
-          </div>}
-          {bank && user?.[0] && <button disabled={loading} onClick={handleSaveHouse} className="w-32 absolute bottom-0 right-0 bg-green-600 text-white p-2 rounded-lg hover:bg-green-500 active:bg-green-400">{!loading ? "Save House" : <i className="fa-solid fa-spinner fa-spin-pulse"></i>}</button>}
+          {bank && (
+            <div className="flex flex-col items-center gap-3">
+              <img width={200} src={bank?.image} alt="bank" />
+              <span>
+                Bank name:{" "}
+                <span className="text-lg font-medium">{bank?.name}</span>
+              </span>
+              <span>
+                Maximum amount of loan:{" "}
+                <span className="text-lg font-medium">
+                  <CurrencyFormat
+                    value={bank?.max_loan}
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />{" "}
+                  sums
+                </span>
+              </span>
+              <span>
+                Starting payment:{" "}
+                <span className="text-lg font-medium">
+                  {bank?.starting_payment}%
+                </span>
+              </span>
+              <span>
+                Loan duration:{" "}
+                <span className="text-lg font-medium">{duration} years</span>
+              </span>
+            </div>
+          )}
+          {bank && (
+            <div className="flex flex-col items-center gap-3">
+              <h2 className="text-2xl font-semibold">Calculator :</h2>
+              <span>
+                House price:{" "}
+                <span className="text-lg font-medium">
+                  <CurrencyFormat
+                    value={calculation?.[0]}
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />{" "}
+                  sums
+                </span>
+              </span>
+              <span>
+                Starting payment:{" "}
+                <span className="text-lg font-medium">
+                  <CurrencyFormat
+                    value={calculation?.[1]}
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />{" "}
+                  sums
+                </span>
+              </span>
+              <span>
+                Monthly payment:{" "}
+                <span className="text-lg font-medium">
+                  <CurrencyFormat
+                    value={calculation?.[2]}
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />{" "}
+                  sums
+                </span>
+              </span>
+              <span>
+                Payment duration:{" "}
+                <span className="text-lg font-medium">{duration} years</span>
+              </span>
+            </div>
+          )}
+          {bank && user?.[0] && (
+            <button
+              disabled={loading}
+              onClick={handleSaveHouse}
+              className="w-32 absolute bottom-0 right-0 bg-green-600 text-white p-2 rounded-lg hover:bg-green-500 active:bg-green-400"
+            >
+              {!loading ? (
+                "Save House"
+              ) : (
+                <i className="fa-solid fa-spinner fa-spin-pulse"></i>
+              )}
+            </button>
+          )}
         </div>
         <dialog
           ref={savedModal}
           className="backdrop:bg-black backdrop:bg-opacity-50 rounded-xl relative "
         >
-        <i
-          className="fa-regular fa-xmark absolute top-0 right-0 bg-red-500 font-bold text-white py-2 px-5"
-          onClick={() => savedModal.current.close()}
-        ></i>
-        <div>
-          <h2 className="text-center text-3xl font-semibold pb-2">My saved houses</h2>
-          <table>
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="py-2 border-2 border-white">#</th>
-                <th className="border-2 border-white">Company Name</th>
-                <th className="border-2 border-white">Complex</th>
-                <th className="border-2 border-white">Number of room(s)</th>
-                <th className="border-2 border-white">Price per m<sup>2</sup></th>
-                <th className="border-2 border-white">Area</th>
-                <th className="border-2 border-white">Action</th>
-              </tr>
-            </thead>
-            <tbody className="text-center bg-gray-100">
-              {userHouses?.map?.((house,ind)=>{
-                return (
-                  <tr key={crypto.randomUUID()}>
-                    <td className="border-2 px-2">{ind+1}</td>
-                    <td className="border-2 px-2">{house?.company_name}</td>
-                    <td className="border-2 px-2">{house?.complex_name} ({house?.complex_address})</td>
-                    <td className="border-2 px-2">{house?.number_of_rooms}</td>
-                    <td className="border-2 px-2">{house?.price}</td>
-                    <td className="border-2 px-2">{house?.kv} m<sup>2</sup></td>
-                    <td>
-                    <i onClick={()=>handleDelete(house?.id)} className="fa-solid fa-trash my-1 bg-red-600 text-white p-3 rounded-lg hover:bg-red-500 active:bg-red-400"></i>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      </dialog>
+          <i
+            className="fa-regular fa-xmark absolute top-0 right-0 bg-red-500 font-bold text-white py-2 px-5"
+            onClick={() => savedModal.current.close()}
+          ></i>
+          <div>
+            <h2 className="text-center text-3xl font-semibold pb-2">
+              My saved houses
+            </h2>
+            <table>
+              <thead className="bg-gray-200">
+                <tr>
+                  <th className="py-2 border-2 border-white">#</th>
+                  <th className="border-2 border-white">Company Name</th>
+                  <th className="border-2 border-white">Complex</th>
+                  <th className="border-2 border-white">Number of room(s)</th>
+                  <th className="border-2 border-white">
+                    Price per m<sup>2</sup>
+                  </th>
+                  <th className="border-2 border-white">Area</th>
+                  <th className="border-2 border-white">Action</th>
+                </tr>
+              </thead>
+              <tbody className="text-center bg-gray-100">
+                {userHouses?.map?.((house, ind) => {
+                  return (
+                    <tr key={crypto.randomUUID()}>
+                      <td className="border-2 px-2">{ind + 1}</td>
+                      <td className="border-2 px-2">{house?.company_name}</td>
+                      <td className="border-2 px-2">
+                        {house?.complex_name} ({house?.complex_address})
+                      </td>
+                      <td className="border-2 px-2">
+                        {house?.number_of_rooms}
+                      </td>
+                      <td className="border-2 px-2">{house?.price}</td>
+                      <td className="border-2 px-2">
+                        {house?.kv} m<sup>2</sup>
+                      </td>
+                      <td>
+                        <i
+                          onClick={() => handleDelete(house?.id)}
+                          className="fa-solid fa-trash my-1 bg-red-600 text-white p-3 rounded-lg hover:bg-red-500 active:bg-red-400"
+                        ></i>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </dialog>
       </div>
     </>
   );
