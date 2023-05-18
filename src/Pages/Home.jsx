@@ -23,6 +23,7 @@ const Home = () => {
   let [bank, setBank] = useState();
   let [duration, setDuration] = useState();
   let [calculation, setCalculation] = useState();
+  let [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let check = sessionStorage.getItem("lunar") || localStorage.getItem("admin-token");
@@ -62,6 +63,7 @@ const Home = () => {
   }
 
   async function handleSaveHouse(){
+    setLoading(true)
     let res = await axios
       .post("/save-calculation", {
         user_id: user?.[0]?.id,
@@ -81,6 +83,7 @@ const Home = () => {
         duration:duration,
         user_id:user?.[0]?.id,
       })
+      setLoading(false);
       return toast(saving?.data, {type:"success"})
     }
   } 
@@ -244,7 +247,7 @@ const Home = () => {
             <span>Monthly payment: <span className="text-lg font-medium"><CurrencyFormat value={calculation?.[2]} displayType={'text'} thousandSeparator={true}/>  sums</span></span>
             <span>Payment duration: <span className="text-lg font-medium">{duration} years</span></span>
           </div>}
-          {bank && <button onClick={handleSaveHouse} className="absolute bottom-0 right-0 bg-green-600 text-white p-2 rounded-lg hover:bg-green-500 active:bg-green-400">Save house</button>}
+          {bank && user?.[0] && <button disabled={loading} onClick={handleSaveHouse} className="w-32 absolute bottom-0 right-0 bg-green-600 text-white p-2 rounded-lg hover:bg-green-500 active:bg-green-400">{!loading ? "Save House" : <i className="fa-solid fa-spinner fa-spin-pulse"></i>}</button>}
         </div>
         <dialog
           ref={savedModal}
