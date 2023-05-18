@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useRef } from "react";
 import { useState } from "react";
 import { useEffect } from "react";
+import CurrencyFormat from "react-currency-format";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Navbar from "../Componenets/Navbar";
@@ -10,6 +11,7 @@ import Sidebar from "../Componenets/Sidebar";
 const Room = () => {
   let navigate = useNavigate();
   let dialog = useRef();
+  let [loading, setLoading] = useState(false);
   let [refresh, setRefresh] = useState()
   let [roomList, setRoomList] = useState()
   let [complexList, setComplexList] = useState()
@@ -32,11 +34,12 @@ const Room = () => {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
-    let res = await axios.post("/add-room", {number_of_rooms:room, price, kv, complex}, {headers:{token:localStorage.getItem("admin-token")}})
+    setLoading(true)
+    let res = await axios.post("/add-room", {number_of_rooms:room, price, kv, complex}, {headers:{token:localStorage.getItem("admin-token")}}).then((res) => {setLoading(false); return res})
     .catch((error)=>{
       if(error?.response?.status !== 200){
         toast(error?.response?.data?.details?.[0]?.message || error?.response?.data, {type:"error"})
+        setLoading(false);
       }
     })
 
@@ -104,7 +107,7 @@ const Room = () => {
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-white" htmlFor="priceInput">
-                Price per m<sup>2</sup>:
+                Per m<sup>2</sup> price:
               </label>
               <input
                 onChange={(e) => setPrice(e.target.value)}
@@ -144,19 +147,20 @@ const Room = () => {
               </select>
             </div>
             <button
+            disabled={loading}
               type="submit"
               className="p-1 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-500"
             >
-              Submit
+              {!loading ? "Submit" : <i className="fa-solid fa-spinner fa-spin-pulse"></i>}
             </button>
           </form>
 
-          <table className="bg-slate-200 w-full text-center rounded-lg">
+          <table className="table-auto bg-slate-200 w-full text-center rounded-lg">
             <thead className="bg-slate-400 text-lg">
               <tr>
                 <th>#</th>
-                <th>Number of rooms</th>
-                <th>Total price</th>
+                <th>Number of room(s)</th>
+                <th>Per m<sup>2</sup> price</th>
                 <th>m<sup>2</sup></th>
                 <th>Complex</th>
                 <th>Company</th>
@@ -165,26 +169,36 @@ const Room = () => {
             </thead>
             <tbody>
               {
-                roomList?.map?.((room,ind) => {
+               roomList?.length > 0 ?  roomList?.map?.((room,ind) => {
                   return (
                     <tr key={room?.room_id} className="border-t border-white">
                       <td>{ind+1}</td>
-                      <td>{room?.number_of_rooms} rooms</td>
-                      <td>{room?.price}</td>
+                      <td>{room?.number_of_rooms} {room?.number_of_rooms > 1 ? "rooms" : "room"}</td>
+                      <td><CurrencyFormat value={room?.price} displayType={'text'} thousandSeparator={true}/> sums</td>
                       <td>
                         {room?.kv} m<sup>2</sup>
                       </td>
                       <td>{room?.comlex_name}</td>
                       <td>{room?.company_name}</td>
                       <td>
-                        <i onClick={()=>handleDelete(room?.room_id)} className="fa-solid fa-trash my-1 bg-red-600 text-white p-3 rounded-lg hover:bg-red-500 active:bg-red-400"></i>
+                        <i onClick={()=>handleDelete(room?.room_id)} className="fa-solid fa-trash cursor-pointer my-1 bg-red-600 text-white p-3 rounded-lg hover:bg-red-500 active:bg-red-400"></i>
                         <i onClick={() => {setRoomData(room); dialog.current.showModal()}}
-                        className="fa-solid fa-edit my-1 ml-2 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-500 active:bg-blue-400"
+                        className="fa-solid fa-edit cursor-pointer my-1 ml-2 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-500 active:bg-blue-400"
                       ></i>
                       </td>
                     </tr>
                   );
-                })
+                }) : new Array(5).fill(1).map(a=>{
+                return <tr key={crypto.randomUUID()} className="border-y-4 ">
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-3 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-16 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-16 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-16 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-16 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-10 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-5 p-1 animate-pulse"><span> </span></td>
+              </tr>
+              })
               }
             </tbody>
           </table>

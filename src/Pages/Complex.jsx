@@ -10,6 +10,7 @@ import Sidebar from "../Componenets/Sidebar";
 const Complex = () => {
   let navigate = useNavigate();
   let dialog = useRef();
+  let [loading, setLoading] = useState(false);
   let [refresh, setRefresh] = useState(true);
   let [complex, setComplex] = useState(null);
   let [address, setAddress] = useState(null);
@@ -42,11 +43,12 @@ const Complex = () => {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
-    let res = await axios.post("/add-complex", {name:complex, address, company}, {headers:{token:localStorage.getItem("admin-token")}})
+    setLoading(true)
+    let res = await axios.post("/add-complex", {name:complex, address, company}, {headers:{token:localStorage.getItem("admin-token")}}).then((res) => {setLoading(false); return res})
     .catch((error)=>{
       if(error?.response?.status !== 200){
         toast(error?.response?.data?.details?.[0]?.message || error?.response?.data, {type:"error"})
+        setLoading(false);
       }
     })
 
@@ -136,10 +138,11 @@ const Complex = () => {
               </select>
             </div>
             <button
+            disabled={loading}
               type="submit"
               className="p-1 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-500"
             >
-              Submit
+              {!loading ? "Submit" : <i className="fa-solid fa-spinner fa-spin-pulse"></i>}
             </button>
             
           </form>
@@ -156,21 +159,29 @@ const Complex = () => {
             </thead>
             <tbody>
               {
-                complexList?.map?.((complex, ind)=>{
+                complexList?.length > 0 ? complexList?.map?.((complex, ind)=>{
                     return <tr key={complex?.complex_id} className="border-t border-white">
                       <td>{ind+1}</td>
                       <td>{complex?.complex_name}</td>
                       <td>{complex?.address}</td>
                       <td>{complex?.company_name}</td>
                       <td>
-                        <i onClick={()=>handleDelete(complex?.complex_id)} className="fa-solid fa-trash my-1 bg-red-600 text-white p-3 rounded-lg hover:bg-red-500 active:bg-red-400"></i>
+                        <i onClick={()=>handleDelete(complex?.complex_id)} className="fa-solid fa-trash cursor-pointer my-1 bg-red-600 text-white p-3 rounded-lg hover:bg-red-500 active:bg-red-400"></i>
                         <i
                         onClick={() => {setComplexData(complex); dialog.current.showModal()}}
-                        className="fa-solid fa-edit my-1 ml-2 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-500 active:bg-blue-400"
+                        className="fa-solid fa-edit cursor-pointer my-1 ml-2 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-500 active:bg-blue-400"
                       ></i>
                       </td>
                     </tr>
-                })
+                }) : new Array(5).fill(1).map(a=>{
+                return <tr key={crypto.randomUUID()} className="border-y-4 ">
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-3 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-16 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-16 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-16 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-5 p-1 animate-pulse"><span> </span></td>
+              </tr>
+              })
               }
             </tbody>
           </table>

@@ -1,5 +1,5 @@
 import axios from "axios";
-import React from "react";
+import React, { useState } from "react";
 import { useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -8,23 +8,28 @@ const UserLogin = () => {
   let navigate = useNavigate();
   let name = useRef();
   let email = useRef();
+  let [ loading, setLoading] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setLoading(true)
+    
     let res = await axios
       .post("/log-in-user", {
         name: name.current.value,
         email: email.current.value,
-      })
+      }).then(res=>{setLoading(false); return res})
       .catch(function (error) {
         if (error)
+          setLoading(false)
           return toast(error?.response?.data?.details[0]?.message, {
             type: "error",
           });
       });
+      
     if (res.status === 200) {
       toast(res?.data?.msg, { type: "success" });
-      sessionStorage.setItem("lunar", Math.random())
+      sessionStorage.setItem("lunar", JSON.stringify(res?.data?.user));
       return navigate("/");
     }
   }
@@ -52,11 +57,12 @@ const UserLogin = () => {
             type="text"
           />
           <button
-            className="p-2 w-full bg-blue-600 rounded-lg shadow-lg text-white active:bg-blue-400 hover:bg-blue-500"
-            type="submit"
-          >
-            Submit
-          </button>
+            disabled={loading}
+              type="submit"
+              className="p-1 w-full bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-500"
+            >
+              {!loading ? "Submit" : <i className="fa-solid fa-spinner fa-spin-pulse"></i>}
+            </button>
           <span className="text-center text-white">
             If you are an admin,{" "}
             <Link className="text-sky-100 underline" to="/log-in-admin">

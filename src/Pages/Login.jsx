@@ -1,5 +1,5 @@
 import axios from "axios";
-import React from "react";
+import React, { useState } from "react";
 import { useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -9,14 +9,16 @@ const Login = () => {
   let navigate = useNavigate();
   let username = useRef();
   let password = useRef();
+  let [loading,setLoading] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setLoading(true)
     let res = await axios
       .post("/log-in-admin", {
         username: username.current.value,
         password: password.current.value,
-      })
+      }).then(res =>{setLoading(false); return res})
       .catch(function (error) {
         if (error)
           return toast(error?.response?.data?.msg, {
@@ -56,11 +58,12 @@ const Login = () => {
             type="password"
           />
           <button
-            className="p-2 w-full bg-blue-600 rounded-lg shadow-lg text-white active:bg-blue-400 hover:bg-blue-500"
-            type="submit"
-          >
-            Submit
-          </button>
+            disabled={loading}
+              type="submit"
+              className="p-1 w-full bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-500"
+            >
+              {!loading ? "Submit" : <i className="fa-solid fa-spinner fa-spin-pulse"></i>}
+            </button>
           <span className="text-center text-white">
             If you are an user,{" "}
             <Link className="text-sky-100 underline" to="/log-in-user">

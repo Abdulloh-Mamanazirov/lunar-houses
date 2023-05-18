@@ -11,7 +11,10 @@ import Sidebar from "../Componenets/Sidebar";
 const Company = () => {
   let navigate = useNavigate();
   let dialog = useRef()
+  let imageModal = useRef()
+  let [loading, setLoading] = useState(false);
   let [refresh, setRefresh] = useState(true);
+  let [modalImage, setModalImage] = useState();
   let [company, setCompany] = useState(null);
   let [image, setImage] = useState(null);
   let [companyList, setCompnayList] = useState();
@@ -32,7 +35,7 @@ const Company = () => {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
+    setLoading(true)
     let formData = new FormData();
     formData.append("image", image);
 
@@ -51,10 +54,13 @@ const Company = () => {
         headers:{
           token:localStorage.getItem("admin-token")
         }
-      }).catch(function (error) {
-        if (error) return toast(error?.response?.data?.details?.[0]?.message || error?.response?.data, {type: "error",});
+      }).then((response) => {setLoading(false); return response}).catch(function (error) {
+        if (error) {
+          toast(error?.response?.data?.details?.[0]?.message || error?.response?.data, {type: "error",});
+          return setLoading(false);
+        }
       });
-
+      console.log(response);
       if(response.status === 200){
         toast(response.data, {type:"success"})
         setRefresh(!refresh)
@@ -92,7 +98,6 @@ const Company = () => {
         return dialog.current.close()
       }
   }
-
   return (
     <>
       <Navbar />
@@ -112,6 +117,7 @@ const Company = () => {
               </label>
               <input
                 onChange={(e) => setCompany(e.target.value)}
+                capture={true}
                 id="companySelect"
                 className="rounded-lg p-1 outline-blue-400 shadow-lg"
               />
@@ -128,10 +134,11 @@ const Company = () => {
               />
             </div>
             <button
+            disabled={loading}
               type="submit"
               className="p-1 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-500"
             >
-              Submit
+              {!loading ? "Submit" : <i className="fa-solid fa-spinner fa-spin-pulse"></i>}
             </button>
           </form>
 
@@ -145,14 +152,18 @@ const Company = () => {
               </tr>
             </thead>
             <tbody>
-              {companyList?.map?.((company, ind) => {
+              {companyList?.length > 0 ? companyList?.map?.((company, ind) => {
                 return (
                   <tr key={company?.id} className="border-t border-white">
                     <td>{ind + 1}</td>
                     <td>{company?.name}</td>
                     <td>
                       <img
-                        className="mx-auto"
+                        onClick={(e) => {
+                          imageModal.current.showModal();
+                          setModalImage(e.target.src);
+                        }}
+                        className="mx-auto cursor-pointer"
                         src={company?.image}
                         width={70}
                         alt="image"
@@ -161,34 +172,72 @@ const Company = () => {
                     <td>
                       <i
                         onClick={() => handleDelete(company?.id)}
-                        className="fa-solid fa-trash my-1 bg-red-600 text-white p-3 rounded-lg hover:bg-red-500 active:bg-red-400"
+                        className="fa-solid fa-trash my-1 cursor-pointer bg-red-600 text-white p-3 rounded-lg hover:bg-red-500 active:bg-red-400"
                       ></i>
                       <i
-                        onClick={() => {setCompnayData(company); dialog.current.showModal()}}
-                        className="fa-solid fa-edit my-1 ml-2 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-500 active:bg-blue-400"
+                        onClick={() => {
+                          setCompnayData(company);
+                          dialog.current.showModal();
+                        }}
+                        className="fa-solid fa-edit my-1 ml-2 cursor-pointer bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-500 active:bg-blue-400"
                       ></i>
                     </td>
                   </tr>
                 );
+              }) : new Array(5).fill(1).map(a=>{
+                return <tr key={crypto.randomUUID()} className="border-y-4 ">
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-3 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-16 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-10 p-1 animate-pulse"><span></span></td>
+                <td className="border-x-4 bg-gray-400 bg-opacity-70 w-5 p-1 animate-pulse"><span> </span></td>
+              </tr>
               })}
             </tbody>
           </table>
         </div>
       </div>
-      <dialog ref={dialog} className="backdrop:bg-black backdrop:bg-opacity-40 border rounded-xl">
+      <dialog
+        ref={dialog}
+        className="backdrop:bg-black backdrop:bg-opacity-40 border rounded-xl"
+      >
         <form onSubmit={handleUpdate} className="flex flex-col gap-3">
           <h2 className="text-center text-2xl font-semibold">Edit Company</h2>
-          <input defaultValue={companyData?.name}
+          <input
+            defaultValue={companyData?.name}
             onChange={(e) => setCompany(e.target.value)}
             className="w-72 rounded-lg border border-blue-400 p-1 outline-blue-400 shadow-lg"
           />
           <div>
-            <button className="border bg-red-500 text-white rounded-md px-3 py-1" formMethod="dialog" type="reset" onClick={()=>dialog.current.close()}>
+            <button
+              className="border bg-red-500 text-white rounded-md px-3 py-1"
+              formMethod="dialog"
+              type="reset"
+              onClick={() => dialog.current.close()}
+            >
               Cancel
             </button>
-            <button className="border bg-blue-600 text-white rounded-md px-3 py-1 ml-2" type="submit">Submit</button>
+            <button
+              className="border bg-blue-600 text-white rounded-md px-3 py-1 ml-2"
+              type="submit"
+            >
+              Submit
+            </button>
           </div>
         </form>
+      </dialog>
+      <dialog
+        ref={imageModal}
+        className="backdrop:bg-black backdrop:bg-opacity-50 rounded-xl relative"
+      >
+        <i
+          className="fa-regular fa-xmark absolute top-0 right-0 bg-red-500 font-bold text-gray-300 py-2 px-5"
+          onClick={() => imageModal.current.close()}
+        ></i>
+        <img
+          className="max-w-[700px] border border-gray-500 rounded-lg"
+          src={modalImage}
+          alt="image"
+        />
       </dialog>
     </>
   );
