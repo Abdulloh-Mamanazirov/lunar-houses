@@ -409,6 +409,7 @@ const Home = () => {
                     Price per m<sup>2</sup>
                   </th>
                   <th className="border-2 border-white">Area</th>
+                  <th className="border-2 border-white">Bank</th>
                   <th className="border-2 border-white">Action</th>
                 </tr>
               </thead>
@@ -428,6 +429,7 @@ const Home = () => {
                       <td className="border-2 px-2">
                         {house?.kv} m<sup>2</sup>
                       </td>
+                      <td className="border-2 px-2">{house?.name}</td>
                       <td>
                         <i
                           onClick={() => handleDelete(house?.id)}
