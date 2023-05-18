@@ -97,7 +97,8 @@ const Home = () => {
   }
 
   async function handleDelete(id){
-    axios.delete(`/delete-houses/${id}`).catch(error => {console.log(error);}).then(res=>toast("Deleted", {type:"info"}))
+    axios.delete(`/delete-houses/${id}`).catch(error => {console.log(error);}).then(res=>{getHouses(); return toast("Deleted", {type:"info"})})
+    return getHouses()
   }
 
   return (
@@ -402,15 +403,15 @@ const Home = () => {
               <thead className="bg-gray-200">
                 <tr>
                   <th className="py-2 border-2 border-white">#</th>
-                  <th className="border-2 border-white">Company Name</th>
-                  <th className="border-2 border-white">Complex</th>
-                  <th className="border-2 border-white">Number of room(s)</th>
-                  <th className="border-2 border-white">
+                  <th className="px-2 border-2 border-white">Company Name</th>
+                  <th className="px-2 border-2 border-white">Complex</th>
+                  <th className="px-2 border-2 border-white">Room(s)</th>
+                  <th className="px-2 border-2 border-white">
                     Price per m<sup>2</sup>
                   </th>
-                  <th className="border-2 border-white">Area</th>
-                  <th className="border-2 border-white">Bank</th>
-                  <th className="border-2 border-white">Action</th>
+                  <th className="px-2 border-2 border-white">Area</th>
+                  <th className="px-2 border-2 border-white">Bank</th>
+                  <th className="px-2 border-2 border-white">Action</th>
                 </tr>
               </thead>
               <tbody className="text-center bg-gray-100">
@@ -430,7 +431,7 @@ const Home = () => {
                         {house?.kv} m<sup>2</sup>
                       </td>
                       <td className="border-2 px-2">{house?.name}</td>
-                      <td>
+                      <td className="border-2 px-2">
                         <i
                           onClick={() => handleDelete(house?.id)}
                           className="fa-solid fa-trash my-1 bg-red-600 text-white p-3 rounded-lg hover:bg-red-500 active:bg-red-400"
