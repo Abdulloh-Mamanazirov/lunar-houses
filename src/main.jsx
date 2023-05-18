@@ -8,7 +8,7 @@ import './index.css'
 import "react-toastify/dist/ReactToastify.css";
 
 import axios from "axios"
-axios.defaults.baseURL = "http://localhost:5000"
+axios.defaults.baseURL = "https://lunar-house-backend.onrender.com";
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>

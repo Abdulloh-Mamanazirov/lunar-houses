@@ -36,21 +36,15 @@ const Company = () => {
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true)
-    let formData = new FormData();
-    formData.append("image", image);
+    
+    let file = new FormData();
+    file.append("file", image);
+    file.append("upload_preset", "houses");
 
     let res = await axios.post(
-      "https://api.upload.io/v2/accounts/FW25bJs/uploads/form_data",
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer public_FW25bJs8dq5vJKxsBH3L7jTMoQh7`,
-        },
-      }
-    );
+      "https://api.cloudinary.com/v1_1/dpk4vtr8p/image/upload",file).catch(error=>{return toast("Error in uploading the image",{type:"error"})});
     if (res.status === 200) {
-
-      let response = await axios.post("/add-company", {name:company, image:res?.data?.files?.[0]?.fileUrl}, {
+      let response = await axios.post("/add-company", {name:company, image:res?.data?.secure_url}, {
         headers:{
           token:localStorage.getItem("admin-token")
         }
@@ -60,7 +54,6 @@ const Company = () => {
           return setLoading(false);
         }
       });
-      console.log(response);
       if(response.status === 200){
         toast(response.data, {type:"success"})
         setRefresh(!refresh)
